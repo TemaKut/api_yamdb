@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 
 #импорт User
 
-NAME_MODEL_FILE = {
+MODEL = {
     'user': (User, 'users.csv'),
 }
 
