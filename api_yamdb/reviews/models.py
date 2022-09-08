@@ -19,7 +19,7 @@ class Genre():
 
 
 class Review(models.Model):
-    review_id = models.AutoField(primary_key=True)
+    """Класс для представления отзывов и оценок на произведения titles."""
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
@@ -35,7 +35,10 @@ class Review(models.Model):
     )
     score = models.PositiveSmallIntegerField(
         verbose_name='Оценка пользователей',
-        validators=(MinValueValidator(1, 'Допустимые значения от 1 до 10'), MaxValueValidator(10))
+        validators=[
+            MinValueValidator(1, 'Диапазон значений от 1 до 10'),
+            MaxValueValidator(10, 'Диапазон значений от 1 до 10')
+        ]
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -58,7 +61,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    comment_id = models.AutoField(primary_key=True)
+    """Класс для представления комментариев к отзывам."""
     review = models.ForeignKey(
         Review,
         verbose_name='Отзыв',
