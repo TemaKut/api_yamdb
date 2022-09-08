@@ -1,15 +1,19 @@
 from django.urls import include, path
-from rest_framework.routers import SimpleRouter
+from rest_framework import routers
 
 from . import views
 
 app_name = 'api'
 
-router_v1 = SimpleRouter()
+router_v1 = routers.SimpleRouter()
+router_v1.register(
+    r'users', views.CertainUser, basename='users_certain')
+router_v1.register(r'users', views.GetOrCreateUsers, basename='users')
 
-# router_v1.register('posts', views.PostsViewSet, basename='posts')
 
 urlpatterns = [
-    # path('v1/', include('djoser.urls.jwt')),
-    # path('v1/', include(router_v1.urls)),
+    path('', include(router_v1.urls)),
+    path('users/me/', views.users_me, name='users_me'),
+    path('auth/token/', views.GetCustomToken.as_view(), name='get_token'),
+    path('auth/signup/', views.EmailConfirm.as_view(), name='get_conf_code'),
 ]
