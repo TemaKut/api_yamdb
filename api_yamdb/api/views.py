@@ -1,8 +1,27 @@
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.views import APIView
 from rest_framework import filters, mixins, viewsets
+from rest_framework.response import Response
+from rest_framework import status, mixins, viewsets, filters
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.decorators import api_view
+from django_filters.rest_framework import DjangoFilterBackend
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
+import random
 
+from .serializers import (
+    GetConfirmationCode,
+    CustomGetTokenSerializer,
+    GetOrCreateUsersSerializer,
+    GetInfoAboutMeSerializer,
+    CertainUserSerializer,
+    CategorySerializer,
+    GenreSerializer,
+    TitleSerializer
+)
+from users.models import User
 from reviews.models import Category, Genre, Title
-from .serializers import CategorySerializer, GenreSerializer, TitleSerializer
 
 
 class CreateListDestroyViewSet(
@@ -37,25 +56,6 @@ class GenreViewSet(CreateListDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-=======
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status, mixins, viewsets, filters
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.decorators import api_view
-from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
-import random
-
-from .serializers import (
-    GetConfirmationCode,
-    CustomGetTokenSerializer,
-    GetOrCreateUsersSerializer,
-    GetInfoAboutMeSerializer,
-    CertainUserSerializer,
-)
-from users.models import User
 
 
 class EmailConfirm(APIView):
@@ -172,4 +172,3 @@ class CertainUser(viewsets.ViewSet):
         user = get_object_or_404(User, username=username)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
->>>>>>> a00dbb4b19d0b70d93e649def684a31f1fc7a579
