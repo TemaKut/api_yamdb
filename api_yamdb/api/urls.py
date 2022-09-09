@@ -7,9 +7,11 @@ app_name = 'api'
 
 router_v1 = SimpleRouter()
 
-# router_v1.register('posts', views.PostsViewSet, basename='posts')
+router_v1.register('titles', views.TitleViewSet, basename='titles')
+router_v1.register('categories', views.CategoryViewSet, basename='categories')
+router_v1.register('genres', views.GenreViewSet, basename='genres')
+
 
 urlpatterns = [
-    # path('v1/', include('djoser.urls.jwt')),
-    # path('v1/', include(router_v1.urls)),
+    path('v1/', include(router_v1.urls)),
 ]
