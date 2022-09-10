@@ -104,7 +104,7 @@ USE_TZ = True
 
 AUTH_USER_MODEL = 'users.User'  # Регистрируем обновлённум юзерную модель
 
-
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'

@@ -24,6 +24,11 @@ from .serializers import (
 )
 from users.models import User
 from reviews.models import Category, Genre, Title, Review
+from .permissions import (
+    AdminOrSuperuser,
+    AdminOnlyCanEdit,
+    GetAll_PostAuth_ElseAdminAuthorSuper,
+)
 
 
 class CreateListDestroyViewSet(
@@ -40,6 +45,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year', 'category__slug', 'genres__slug',)
+    permission_classes = [AdminOnlyCanEdit]
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
@@ -49,6 +55,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+    permission_classes = [AdminOnlyCanEdit]
 
 
 class GenreViewSet(CreateListDestroyViewSet):
@@ -58,6 +65,7 @@ class GenreViewSet(CreateListDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+    permission_classes = [AdminOnlyCanEdit]
 
 
 class EmailConfirm(APIView):
@@ -91,7 +99,7 @@ class EmailConfirm(APIView):
                 [serializer.validated_data.get('email')],
             )
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -115,7 +123,7 @@ class GetCustomToken(APIView):
                     )
                 return Response('Неверный ключ доступа!', status=status.HTTP_400_BAD_REQUEST)
             except User.DoesNotExist:
-                return Response('Пользователя не существует.', status=status.HTTP_400_BAD_REQUEST)
+                return Response('Пользователя не существует.', status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -131,6 +139,7 @@ class GetOrCreateUsers(
     pagination_class = LimitOffsetPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['=username']
+    permission_classes = [AdminOrSuperuser]
 
 
 @api_view(['GET', 'PATCH'])
@@ -154,6 +163,7 @@ def users_me(request):
 class CertainUser(viewsets.ViewSet):
     """ Методы get patch и delete к конкретному юзеру. """
     lookup_field = 'username'
+    permission_classes = [AdminOrSuperuser]
 
     def retrieve(self, request, username=None):
         user = get_object_or_404(User, username=username)
@@ -178,7 +188,7 @@ class CertainUser(viewsets.ViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    #permission_classes =
+    permission_classes = [GetAll_PostAuth_ElseAdminAuthorSuper]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -191,7 +201,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    #permission_classes =
+    permission_classes = [GetAll_PostAuth_ElseAdminAuthorSuper]
 
     def get_queryset(self):
         pk = self.kwargs.get('review_id')
