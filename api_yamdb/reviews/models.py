@@ -2,22 +2,6 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
-class User():
-    pass
-
-
-class Title():
-    pass
-
-
-class Category():
-    pass
-
-
-class Genre():
-    pass
-
-
 class Review(models.Model):
     """Класс для представления отзывов и оценок на произведения titles."""
     title = models.ForeignKey(
