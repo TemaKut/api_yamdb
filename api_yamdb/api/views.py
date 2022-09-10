@@ -19,7 +19,7 @@ from .serializers import (
     CategorySerializer,
     GenreSerializer,
     TitleSerializer,
-    ReviewSerializer, 
+    ReviewSerializer,
     CommentSerializer
 )
 from users.models import User
@@ -206,4 +206,3 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             review=review
         )
-

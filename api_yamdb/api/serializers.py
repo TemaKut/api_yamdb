@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
 from users.models import User
-from reviews.models import Category, Genre, Title, Rewiew, Comment
+from reviews.models import Category, Genre, Title, Review, Comment
 
 
 class GetConfirmationCode(serializers.ModelSerializer):
@@ -125,6 +125,7 @@ class CertainUserSerializer(serializers.ModelSerializer):
                 'validators': []
             }
         }
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
