@@ -9,9 +9,6 @@ class Category(models.Model):
     name = models.CharField(max_length=50, verbose_name='Название')
     slug = models.SlugField(max_length=50, unique=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
@@ -37,7 +34,7 @@ class Title(models.Model):
     year = models.IntegerField()
     description = models.TextField(blank=True, null=True)
     rating = models.IntegerField(
-        null=True, default=None, verbose_name='Рейтинг'
+        null=True, default=None, verbose_name='Рейтинг', blank=True
     )
     category = models.ForeignKey(
         Category, related_name='titles', on_delete=models.SET_NULL, null=True

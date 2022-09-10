@@ -1,10 +1,18 @@
 from rest_framework.views import APIView
-from rest_framework import filters, mixins, viewsets
+from rest_framework import (
+    filters,
+    mixins,
+    viewsets,
+    status,
+    mixins,
+    viewsets,
+    filters,
+)
 from rest_framework.response import Response
-from rest_framework import status, mixins, viewsets, filters
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
@@ -143,6 +151,7 @@ class GetOrCreateUsers(
 
 
 @api_view(['GET', 'PATCH'])
+@permission_classes([IsAuthenticated])
 def users_me(request):
     """ Методы get и patch к пользователю отправившему запрос. """
     user = get_object_or_404(User, pk=request.user.id)
@@ -153,7 +162,7 @@ def users_me(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     serializer = GetInfoAboutMeSerializer(
-        user, data=request.data, partial=True)
+        user, data=request.data, partial=True, context={'request': request})
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

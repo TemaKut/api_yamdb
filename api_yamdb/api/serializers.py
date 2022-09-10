@@ -12,30 +12,28 @@ class GetConfirmationCode(serializers.ModelSerializer):
     """ Сериализатор отправки кода на email. """
     confirmation_code = serializers.CharField(required=False, write_only=True)
 
+    def validate(self, data):
+        username = data['username']
+        if username == 'me':
+            raise ValidationError('Запрещённое имя пользователя.')
+        return data
+
     class Meta:
         fields = ('email', 'confirmation_code', 'username')
         model = User
-        extra_kwargs = {
-            'username': {
-                'validators': []
-            },
-            'email': {
-                'validators': []
-            }
-        }
 
 
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug')
         model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug')
         model = Genre
 
 
@@ -48,7 +46,7 @@ class TitleSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'name', 'year', 'category', 'genres')
+        fields = '__all__'
         model = Title
 
     def validate_year(self, value):
@@ -85,6 +83,12 @@ class GetOrCreateUsersSerializer(serializers.ModelSerializer):
 class GetInfoAboutMeSerializer(serializers.ModelSerializer):
     """ Сериализатор получения информации о пользователе. """
 
+    def validate(self, data):
+        user_role = self.context.get('request').user.role
+        if user_role == 'user' and data.get('role') != 'user':
+            raise ValidationError('Вам нельзя менять свою роль.')
+        return data
+
     class Meta:
         model = User
         fields = (
@@ -93,15 +97,8 @@ class GetInfoAboutMeSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'bio',
+            'role',
         )
-        extra_kwargs = {
-            'username': {
-                'validators': []
-            },
-            'email': {
-                'validators': []
-            }
-        }
 
 
 class CertainUserSerializer(serializers.ModelSerializer):
@@ -117,14 +114,6 @@ class CertainUserSerializer(serializers.ModelSerializer):
             'bio',
             'role',
         )
-        extra_kwargs = {
-            'username': {
-                'validators': []
-            },
-            'email': {
-                'validators': []
-            }
-        }
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -151,7 +140,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ('title', 'id', 'text', 'author', 'score', 'pub_date')
+        fields = '__all__'
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -162,5 +151,5 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
+        fields = '__all__'
         read_only_fields = ('id', 'review', 'pub_date')

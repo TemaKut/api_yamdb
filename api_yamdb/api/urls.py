@@ -21,8 +21,8 @@ router_v1.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
 
 
 urlpatterns = [
-    path('', include(router_v1.urls)),
     path('users/me/', views.users_me, name='users_me'),
     path('auth/token/', views.GetCustomToken.as_view(), name='get_token'),
     path('auth/signup/', views.EmailConfirm.as_view(), name='get_conf_code'),
+    path('', include(router_v1.urls)),
 ]
