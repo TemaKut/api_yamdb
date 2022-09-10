@@ -27,6 +27,7 @@ from .serializers import (
     CategorySerializer,
     GenreSerializer,
     TitleSerializer,
+    TitleReadSerializer,
     ReviewSerializer,
     CommentSerializer
 )
@@ -37,6 +38,7 @@ from .permissions import (
     AdminOnlyCanEdit,
     GetAll_PostAuth_ElseAdminAuthorSuper,
 )
+from .filters import TitleFilter
 
 
 class CreateListDestroyViewSet(
@@ -52,8 +54,13 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name', 'year', 'category__slug', 'genres__slug',)
+    filterset_class = TitleFilter
     permission_classes = [AdminOnlyCanEdit]
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleReadSerializer
+        return TitleSerializer
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
