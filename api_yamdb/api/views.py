@@ -18,10 +18,12 @@ from .serializers import (
     CertainUserSerializer,
     CategorySerializer,
     GenreSerializer,
-    TitleSerializer
+    TitleSerializer,
+    ReviewSerializer, 
+    CommentSerializer
 )
 from users.models import User
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Title, Review
 
 
 class CreateListDestroyViewSet(
@@ -172,3 +174,36 @@ class CertainUser(viewsets.ViewSet):
         user = get_object_or_404(User, username=username)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    #permission_classes =
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    #permission_classes =
+
+    def get_queryset(self):
+        pk = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, pk=pk)
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, title=title_id, id=review_id)
+        serializer.save(
+            author=self.request.user,
+            review=review
+        )
+
