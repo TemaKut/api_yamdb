@@ -1,4 +1,5 @@
 import datetime as dt
+from django.db.models import Avg
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -28,14 +29,14 @@ class GetConfirmationCode(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug')
         model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug')
         model = Genre
 
 
@@ -43,12 +44,12 @@ class TitleSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all()
     )
-    genres = serializers.SlugRelatedField(
+    genre = serializers.SlugRelatedField(
         slug_field='slug', many=True, queryset=Genre.objects.all()
     )
 
     class Meta:
-        fields = ('id', 'name', 'year', 'category', 'genres')
+        fields = ('id', 'name', 'year', 'description', 'category', 'genre')
         model = Title
 
     def validate_year(self, value):
@@ -58,6 +59,20 @@ class TitleSerializer(serializers.ModelSerializer):
                 'Год выпуска произведения не может быть больше нынешнего.'
             )
         return value
+
+
+class TitleReadSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+    rating = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = '__all__'
+        model = Title
+
+    def get_rating(self, obj):
+        rating = obj.reviews.aggregate(Avg(('score')))
+        return rating.get('score__avg')
 
 
 class CustomGetTokenSerializer(serializers.Serializer):
