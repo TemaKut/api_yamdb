@@ -104,7 +104,7 @@ class EmailConfirm(APIView):
                 serializer.save(confirmation_code=confirmation_code)
 
             # Отправляем письмо с кодом
-            mail = send_mail(
+            send_mail(
                 'Подтверждение почты',
                 (
                     f'Ваш код подтверждения: {confirmation_code}\n'
@@ -129,17 +129,29 @@ class GetCustomToken(APIView):
                 user = User.objects.get(
                     username=serializer.validated_data['username']
                 )
-                if user.confirmation_code == serializer.validated_data['confirmation_code']:
+                if (
+                    user.confirmation_code
+                    == serializer.validated_data['confirmation_code']
+                ):
                     refresh = RefreshToken.for_user(user)
 
                     return Response(
                         {'token': str(refresh.access_token)},
                         status=status.HTTP_200_OK,
                     )
-                return Response('Неверный ключ доступа!', status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    'Неверный ключ доступа!',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             except User.DoesNotExist:
-                return Response('Пользователя не существует.', status=status.HTTP_404_NOT_FOUND)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    'Пользователя не существует.',
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class GetOrCreateUsers(
@@ -194,7 +206,10 @@ class CertainUser(viewsets.ViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     def destroy(self, request, username=None):
         user = get_object_or_404(User, username=username)

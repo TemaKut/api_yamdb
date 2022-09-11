@@ -100,7 +100,10 @@ class GetInfoAboutMeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
 
-        if self.context.get('request').user.role == 'user' and data.get('role'):
+        if (
+            self.context.get('request').user.role == 'user'
+            and data.get('role')
+        ):
             raise ValidationError('Вам нельзя менять свою роль.')
 
         return data
