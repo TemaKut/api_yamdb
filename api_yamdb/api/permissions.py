@@ -44,7 +44,7 @@ class AdminOnlyCanEdit(permissions.BasePermission):
 
 
 class GetAll_PostAuth_ElseAdminAuthorSuper(permissions.BasePermission):
-    """ 
+    """
     Get - все пользователи
     Post - все авторизованные
     Все оставшиеся - только административный персонал и автор.
