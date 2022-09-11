@@ -99,9 +99,10 @@ class GetInfoAboutMeSerializer(serializers.ModelSerializer):
     """ Сериализатор получения информации о пользователе. """
 
     def validate(self, data):
-        user_role = self.context.get('request').user.role
-        if user_role == 'user' and data.get('role') != 'user':
+
+        if self.context.get('request').user.role == 'user' and data.get('role'):
             raise ValidationError('Вам нельзя менять свою роль.')
+
         return data
 
     class Meta:
@@ -114,6 +115,7 @@ class GetInfoAboutMeSerializer(serializers.ModelSerializer):
             'bio',
             'role',
         )
+        extra_kwargs = {'role': {'read_only': True}}
 
 
 class CertainUserSerializer(serializers.ModelSerializer):
