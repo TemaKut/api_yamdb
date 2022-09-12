@@ -50,7 +50,9 @@ class Title(models.Model):
             )
         ]
     )
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(
+        blank=True, null=True, verbose_name='Описание'
+    )
     rating = models.IntegerField(
         null=True, default=None, verbose_name='Рейтинг', blank=True
     )
