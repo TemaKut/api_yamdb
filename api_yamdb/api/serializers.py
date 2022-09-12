@@ -1,6 +1,3 @@
-import datetime as dt
-from django.db.models import Avg
-
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
@@ -25,20 +22,23 @@ class GetConfirmationCode(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """ Сериализатор для получения и создания категорий произведений. """
 
     class Meta:
-        fields = ('name', 'slug')
+        fields = ('name', 'slug',)
         model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """ Сериализатор для получения и создания жанров произведений. """
 
     class Meta:
-        fields = ('name', 'slug')
+        fields = ('name', 'slug',)
         model = Genre
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """ Сериализатор для создания и редактирования произведений. """
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all()
     )
@@ -47,30 +47,21 @@ class TitleSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'name', 'year', 'description', 'category', 'genre')
+        fields = ('id', 'name', 'year', 'description', 'category', 'genre',)
         model = Title
-
-    def validate_year(self, value):
-        year = dt.date.today().year
-        if value > year:
-            raise serializers.ValidationError(
-                'Год выпуска произведения не может быть больше нынешнего.'
-            )
-        return value
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
+    """ Сериализатор для получения произведений. """
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(
+        source='reviews__score__avg', read_only=True
+    )
 
     class Meta:
         fields = '__all__'
         model = Title
-
-    def get_rating(self, obj):
-        rating = obj.reviews.aggregate(Avg(('score')))
-        return rating.get('score__avg')
 
 
 class CustomGetTokenSerializer(serializers.Serializer):
@@ -143,6 +134,10 @@ class ReviewSerializer(serializers.ModelSerializer):
     title = serializers.SlugRelatedField(
         read_only=True, slug_field='id')
 
+    class Meta:
+        model = Review
+        fields = '__all__'
+
     def validate(self, data):
         request = self.context['request']
         author = request.user
@@ -152,15 +147,14 @@ class ReviewSerializer(serializers.ModelSerializer):
 
         if request.method == 'POST':
             if Review.objects.filter(title=title, author=author).exists():
-                raise ValidationError('Вы можете оставить только'
-                                      'один отзыв на произведение')
+                raise ValidationError(
+                    'Вы можете оставить только'
+                    'один отзыв на произведение'
+                )
             if 0 > score > 10:
                 raise ValidationError('Оценка')
-        return data
 
-    class Meta:
-        model = Review
-        fields = '__all__'
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):

@@ -15,6 +15,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 import random
 
@@ -45,13 +46,13 @@ class CreateListDestroyViewSet(
     mixins.CreateModelMixin, mixins.ListModelMixin,
     mixins.DestroyModelMixin, viewsets.GenericViewSet
 ):
-    """Миксин для создания, удаления и получение списка обьектов"""
+    """ Миксин для создания, удаления и получение списка обьектов. """
     pass
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    """Класс представления произведений"""
-    queryset = Title.objects.all()
+    """ Класс представления произведений. """
+    queryset = Title.objects.all().annotate(Avg('reviews__score'))
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
@@ -60,11 +61,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return TitleReadSerializer
+
         return TitleSerializer
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
-    """Класс представления категорий произведений"""
+    """ Класс представления категорий произведений. """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
@@ -74,7 +76,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
 
 
 class GenreViewSet(CreateListDestroyViewSet):
-    """Класс представления жанров произведений"""
+    """ Класс представления жанров произведений. """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
@@ -90,7 +92,6 @@ class EmailConfirm(APIView):
         serializer = GetConfirmationCode(data=request.data)
 
         if serializer.is_valid():
-            # Генерируем код
             confirmation_code = ''
             for i in range(7):
                 confirmation_code += str(random.randint(0, 9))
@@ -159,7 +160,7 @@ class GetOrCreateUsers(
     mixins.ListModelMixin,
     viewsets.GenericViewSet
 ):
-    """ Получаем список пользователей или создаём пользователя """
+    """ Получаем список пользователей или создаём пользователя. """
 
     queryset = User.objects.all()
     serializer_class = GetOrCreateUsersSerializer
