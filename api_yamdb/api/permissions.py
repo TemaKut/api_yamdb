@@ -1,49 +1,38 @@
 from rest_framework import permissions
 
 
-class AdminOrSuperuser(permissions.BasePermission):
+class IsAdminOrSuperuser(permissions.BasePermission):
     """ Доступ только для админов или суперюзеров. """
 
     def has_permission(self, request, view):
 
-        if request.user.is_authenticated:
+        return (
+            request.user.is_superuser
+            or request.user.is_staff
+            or request.user.is_admin
+            if request.user.is_authenticated else False
+        )
+
+
+class ISAdminOnlyEdit(permissions.BasePermission):
+    """ Доступ только для админов или суперюзеров. """
+
+    def has_permission(self, request, view):
+
+        if request.method not in permissions.SAFE_METHODS:
+
             return (
                 request.user.is_superuser
-                or request.user.role == 'admin'
+                or request.user.is_staff
+                or request.user.is_admin
+                if request.user.is_authenticated else False
             )
-        else:
-            return False
 
-
-class AdminOnlyCanEdit(permissions.BasePermission):
-    """ Доступ только для админов или суперюзеров. """
-
-    def has_permission(self, request, view):
-        if request.method not in permissions.SAFE_METHODS:
-            if request.user.is_authenticated:
-                return (
-                    request.user.is_superuser
-                    or request.user.role == 'admin'
-                )
-            else:
-                return False
-        else:
-            return True
-
-    def has_object_permission(self, request, view, obj):
-        if request.method not in permissions.SAFE_METHODS:
-            if request.user.is_authenticated:
-                return (
-                    request.user.is_superuser
-                    or request.user.role == 'admin'
-                )
-            else:
-                return False
         else:
             return True
 
 
-class GetAll_PostAuth_ElseAdminAuthorSuper(permissions.BasePermission):
+class ISAdminAuthorOrSuperuser(permissions.BasePermission):
     """
     Get - все пользователи
     Post - все авторизованные
@@ -51,20 +40,25 @@ class GetAll_PostAuth_ElseAdminAuthorSuper(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+
         if request.method not in permissions.SAFE_METHODS:
+
             return (request.user.is_authenticated)
         else:
+
             return True
 
     def has_object_permission(self, request, view, obj):
+
         if request.method not in permissions.SAFE_METHODS:
-            if request.user.is_authenticated:
-                return (
-                    request.user == obj.author
-                    or request.user.is_superuser
-                    or request.user.role == 'admin'
-                    or request.user.role == 'moderator'
-                )
-            return False
+
+            return (
+                request.user == obj.author
+                or request.user.is_superuser
+                or request.user.is_admin
+                or request.user.is_moderator
+                if request.user.is_authenticated else False
+            )
+
         else:
             return True

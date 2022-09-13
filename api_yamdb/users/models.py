@@ -2,23 +2,38 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 
-CHOICES_ROLES = (
-    ('user', 'Аутентифицированный пользователь'),
-    ('moderator', 'Модератор'),
-    ('admin', 'Администратор'),
+ADMIN = "admin"
+MODERATOR = "moderator"
+USER = "user"
+ROLES = (
+    (ADMIN, "Administrator"),
+    (MODERATOR, "Moderator"),
+    (USER, "User"),
 )
 
 
 class User(AbstractUser):
     """ Переопределяем поля пользователя. """
-    email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(_("email address"), unique=True)
     bio = models.TextField(
-        'Биография',
+        "Биография",
         blank=True,
     )
     password = models.CharField(max_length=100, blank=True, null=True)
     role = models.CharField(
-        'Роль', max_length=30,
-        choices=CHOICES_ROLES, default='user'
+        "Роль", max_length=30,
+        choices=ROLES, default="user"
     )
     confirmation_code = models.CharField(max_length=100)
+
+    @property
+    def is_admin(self):
+        return ADMIN in self.role
+
+    @property
+    def is_moderator(self):
+        return MODERATOR in self.role
+
+    @property
+    def is_user(self):
+        return USER in self.role
