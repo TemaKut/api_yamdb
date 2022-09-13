@@ -128,6 +128,7 @@ class CertainUserSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """ Сериализатор для создания и редактирования отзывов. """
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True
     )
@@ -140,24 +141,27 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context['request']
-        author = request.user
         title_id = self.context['view'].kwargs.get('title_id')
-        title = get_object_or_404(Title, pk=title_id)
         score = data['score']
 
-        if request.method == 'POST':
-            if Review.objects.filter(title=title, author=author).exists():
-                raise ValidationError(
-                    'Вы можете оставить только'
-                    'один отзыв на произведение'
-                )
-            if 0 > score > 10:
-                raise ValidationError('Оценка')
+        if request.method != 'POST':
+            return data
+        if Review.objects.filter(
+            title=get_object_or_404(Title, pk=title_id),
+            author=request.user
+        ).exists():
+            raise ValidationError(
+                'Вы можете оставить только '
+                'один отзыв на произведение'
+            )
+        if 0 > score > 10:
+            raise ValidationError('Оценка')
 
         return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """ Сериализатор для создания и редактирования комментариев на отзыв. """
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True

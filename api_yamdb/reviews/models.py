@@ -38,7 +38,7 @@ class Genre(models.Model):
 class Title(models.Model):
     """ Модель произведений. """
     name = models.CharField(
-        max_length=50, verbose_name='Название произведения'
+        max_length=100, verbose_name='Название произведения'
     )
     year = models.SmallIntegerField(
         verbose_name='Год выпуска',
@@ -128,7 +128,7 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return self.text
+        return self.author, self.score, self.title
 
 
 class Comment(models.Model):

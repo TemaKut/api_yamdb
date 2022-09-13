@@ -29,9 +29,6 @@ class Command(BaseCommand):
     def clear_model(model):
         model.objects.all().delete()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def print_to_terminal(self, message):
         self.stdout.write(self.style.SUCCESS(message))
 
