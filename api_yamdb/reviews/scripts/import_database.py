@@ -39,7 +39,7 @@ class Command(BaseCommand):
             self.clear_model(model)
             line = 0
             for row in reader:
-                if row != " and line > 0:
+                if row != "" and line > 0:
                     params = dict(zip(field_names, row))
                     _, created = model.objects.get_or_create(**params)
                 line += 1

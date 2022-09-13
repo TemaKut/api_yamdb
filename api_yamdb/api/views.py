@@ -8,7 +8,7 @@ from rest_framework import (
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.decorators import permission_classes, action
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
@@ -161,7 +161,11 @@ class GetOrCreateUsers(
     search_fields = ["=username"]
     permission_classes = [IsAdminOrSuperuser]
 
-    @action(detail=False, methods=["GET", "PATCH"], permission_classes=[IsAuthenticated])
+    @action(
+        detail=False,
+        methods=["GET", "PATCH"],
+        permission_classes=[IsAuthenticated],
+    )
     def me(self, request):
         """ Методы get и patch к пользователю отправившему запрос. """
         user = get_object_or_404(User, pk=request.user.id)
@@ -172,7 +176,11 @@ class GetOrCreateUsers(
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         serializer = GetInfoAboutMeSerializer(
-            user, data=request.data, partial=True, context={"request": request})
+            user,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
