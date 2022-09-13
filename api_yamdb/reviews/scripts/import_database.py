@@ -63,7 +63,7 @@ class Command(BaseCommand):
             reader = csv.reader(file, delimiter=",")
             line = 0
             for row in reader:
-                if row != " and line > 0:
+                if row != "" and line > 0:
                     title = get_object_or_404(Title, pk=row[1])
                     genre = get_object_or_404(Genre, pk=row[2])
                     title.genre.add(genre)
