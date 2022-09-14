@@ -28,7 +28,9 @@ router_v1.register(
 auth_urls = [
     path("token/", views.GetCustomTokenViewSet.as_view(), name="get_token"),
     path(
-        "signup/", views.RegisterAndSendConfirmCodeViewSet.as_view(), name="get_conf_code"
+        "signup/",
+        views.RegisterAndSendConfirmCodeViewSet.as_view(),
+        name="get_conf_code",
     ),
 ]
 
