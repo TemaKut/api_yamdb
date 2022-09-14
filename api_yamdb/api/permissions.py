@@ -7,9 +7,7 @@ class IsAdminOrSuperuser(permissions.BasePermission):
     def has_permission(self, request, view):
 
         return (
-            request.user.is_superuser
-            or request.user.is_staff
-            or request.user.is_admin
+            request.user.is_admin
             if request.user.is_authenticated else False
         )
 
@@ -19,17 +17,11 @@ class ISAdminOnlyEdit(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-        if request.method not in permissions.SAFE_METHODS:
-
-            return (
-                request.user.is_superuser
-                or request.user.is_staff
-                or request.user.is_admin
-                if request.user.is_authenticated else False
-            )
-
-        else:
-            return True
+        return (
+            request.user.is_admin
+            if request.user.is_authenticated
+            else request.method in permissions.SAFE_METHODS
+        )
 
 
 class ISAdminAuthorOrSuperuser(permissions.BasePermission):
@@ -41,24 +33,17 @@ class ISAdminAuthorOrSuperuser(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-        if request.method not in permissions.SAFE_METHODS:
-
-            return (request.user.is_authenticated)
-        else:
-
-            return True
+        return (
+            request.user.is_authenticated
+            or request.method in permissions.SAFE_METHODS
+        )
 
     def has_object_permission(self, request, view, obj):
 
-        if request.method not in permissions.SAFE_METHODS:
-
-            return (
-                request.user == obj.author
-                or request.user.is_superuser
-                or request.user.is_admin
-                or request.user.is_moderator
-                if request.user.is_authenticated else False
-            )
-
-        else:
-            return True
+        return (
+            request.user == obj.author
+            or request.user.is_admin
+            or request.user.is_moderator
+            if request.user.is_authenticated
+            else request.method in permissions.SAFE_METHODS
+        )

@@ -5,7 +5,7 @@ from django.db import models
 ADMIN = "admin"
 MODERATOR = "moderator"
 USER = "user"
-ROLES = (
+USER_ROLES = (
     (ADMIN, "Administrator"),
     (MODERATOR, "Moderator"),
     (USER, "User"),
@@ -14,6 +14,7 @@ ROLES = (
 
 class User(AbstractUser):
     """ Переопределяем поля пользователя. """
+
     email = models.EmailField(_("email address"), unique=True)
     bio = models.TextField(
         "Биография",
@@ -22,13 +23,17 @@ class User(AbstractUser):
     password = models.CharField(max_length=100, blank=True, null=True)
     role = models.CharField(
         "Роль", max_length=30,
-        choices=ROLES, default="user"
+        choices=USER_ROLES, default="user"
     )
     confirmation_code = models.CharField(max_length=100)
 
     @property
     def is_admin(self):
-        return ADMIN in self.role
+        return (
+            ADMIN in self.role
+            or self.is_staff
+            or self.is_superuser
+        )
 
     @property
     def is_moderator(self):

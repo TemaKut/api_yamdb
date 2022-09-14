@@ -17,7 +17,7 @@ from django.shortcuts import get_object_or_404
 import random
 
 from .serializers import (
-    EmailConfirmSerializer,
+    RegisterAndSendConfirmCodeSerializer,
     CustomGetTokenSerializer,
     GetOrCreateUsersSerializer,
     GetInfoAboutMeSerializer,
@@ -37,6 +37,7 @@ from .permissions import (
     ISAdminAuthorOrSuperuser,
 )
 from .filters import TitleFilter
+from api_yamdb.settings import EMAIL_HOST_USER
 
 
 class CreateListDestroyViewSet(
@@ -82,13 +83,13 @@ class GenreViewSet(CreateListDestroyViewSet):
     permission_classes = [ISAdminOnlyEdit]
 
 
-class EmailConfirm(APIView):
+class RegisterAndSendConfirmCodeViewSet(APIView):
     """ Регистрируем пользователя совместно с выдачей кода. """
 
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = EmailConfirmSerializer(data=request.data)
+        serializer = RegisterAndSendConfirmCodeSerializer(data=request.data)
 
         serializer.is_valid(raise_exception=True)
         confirmation_code = ""
@@ -110,14 +111,14 @@ class EmailConfirm(APIView):
                 f"Ваш код подтверждения: {confirmation_code}\n"
                 f"Никнейм: {serializer.validated_data.get('username')}\n"
             ),
-            "send.confirm.code@yandex.ru",
+            EMAIL_HOST_USER,
             [serializer.validated_data.get("email")],
         )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GetCustomToken(APIView):
+class GetCustomTokenViewSet(APIView):
     """ Получаум кастомный токен. """
 
     permission_classes = [AllowAny]

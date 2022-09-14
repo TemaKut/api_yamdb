@@ -2,11 +2,11 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
-from users.models import User
+from users.models import User, USER
 from reviews.models import Category, Genre, Title, Review, Comment
 
 
-class EmailConfirmSerializer(serializers.ModelSerializer):
+class RegisterAndSendConfirmCodeSerializer(serializers.ModelSerializer):
     """ Сериализатор отправки кода на email. """
     confirmation_code = serializers.CharField(required=False, write_only=True)
 
@@ -92,7 +92,7 @@ class GetInfoAboutMeSerializer(serializers.ModelSerializer):
     def validate(self, data):
 
         if (
-            self.context.get("request").user.role == "user"
+            self.context.get("request").user.role == USER
             and data.get("role")
         ):
             raise ValidationError("Вам нельзя менять свою роль.")
